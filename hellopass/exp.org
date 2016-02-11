@@ -1,0 +1,7 @@
+* Experiment on points-to analysis
+
+** benchmarks
+ * gawk: size: 8
+ * bc: do not have -o in makefile, so can only get .bc for part of file, and no alias.
+ * grep: only 1
+ * make: 8
