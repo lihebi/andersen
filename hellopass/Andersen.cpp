@@ -176,7 +176,7 @@ void AndersenGraph::Solve() {
  * @return true if pts[to] changed.
  */
 bool AndersenGraph::mergePts(Value* to, Value* from) {
-  errs() << "merge:" << to->getName() << " from " << from->getName() << "\n";
+  // errs() << "merge:" << to->getName() << " from " << from->getName() << "\n";
   size_t size = m_pts[to].size();
   
   m_pts[to].insert(m_pts[from].begin(), m_pts[from].end());
@@ -192,6 +192,35 @@ void AndersenGraph::DumpConstraints() {
 }
 
 void AndersenGraph::Dump() {
+  /**
+   * (filename, line, var, (pts1, pts2, ...))
+   * e.g. (a.c, 100, v, (a, b, c))
+   */
+  for (Value* v : m_nodes) {
+    StringRef filename;
+    unsigned line;
+    if (m_dbg.count(v) == 0) {
+      // continue;
+      filename="NA";
+      line=0;
+    } else {
+      // file name
+      filename = m_dbg[v]->getFilename();
+      // line number
+      line = m_dbg[v]->getLine();
+    }
+    if (m_pts[v].size() > 0) {
+      FILE *fp = fopen("output.txt", "a");
+      fprintf(fp, "%s:%u %s ===> {", filename.str().c_str(), line, v->getName().str().c_str());
+      for (Value *a : m_pts[v]) {
+        fprintf(fp, "%s, ", a->getName().str().c_str());
+      }
+      fprintf(fp, "}\n");
+      fclose(fp);
+    }
+  }
+}
+void AndersenGraph::DumpDebug() {
   errs() << "pts:\n";
 
   /**
@@ -212,15 +241,6 @@ void AndersenGraph::Dump() {
       line = m_dbg[v]->getLine();
     }
     errs() << "\t(" << filename << ":" << line << " " << v->getName() << ":";
-    if (m_pts[v].size() > 0) {
-      FILE *fp = fopen("output.txt", "a");
-      fprintf(fp, "%s:%u %s ===> {", filename.str().c_str(), line, v->getName().str().c_str());
-      for (Value *a : m_pts[v]) {
-        fprintf(fp, "%s, ", a->getName().str().c_str());
-      }
-      fprintf(fp, "}\n");
-      fclose(fp);
-    }
     for (Value *a : m_pts[v]) {
       errs() << a->getName() << ", ";
       // getchar();
@@ -242,14 +262,14 @@ public:
   static char ID;
   AndersenPass() : FunctionPass(ID) {}
   bool runOnFunction(Function &f) override {
-    errs() << "-------- function: " << f.getName() << "\n";
+    // errs() << "-------- function: " << f.getName() << "\n";
     // alias_analysis(f);
     // return false;
     std::vector<Constraint> cons;
     std::map<Value*, DILocation*> dbg;
     collect_constraints(f, cons, dbg);
     AndersenGraph graph(cons, dbg);
-    graph.DumpConstraints();
+    // graph.DumpConstraints();
     graph.Init();
     graph.Solve();
     graph.Dump();

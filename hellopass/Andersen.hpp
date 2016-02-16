@@ -63,6 +63,7 @@ public:
   void Solve();
   void DumpConstraints();
   void Dump();
+  void DumpDebug();
 private:
   bool addEdge(Value* lhs, Value* rhs);
   void addPts(Value* lhs, Value* rhs);
