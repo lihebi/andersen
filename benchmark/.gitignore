@@ -1,0 +1,5 @@
+*
+!.gitignore
+!gawk*.tar.gz
+!make*.tar.gz
+!pointer.c
