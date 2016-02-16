@@ -1,0 +1,28 @@
+#+TITLE: Description for implementation
+
+The implementation file is =./hellopass/Andersen.cpp=.
+
+the class =AndersenPass= is inherited from =FunctionPass=,
+thus the analysis is done on function level.
+
+The following is the =runOnFunction= function
+
+#+begin_src C
+  bool runOnFunction(Function &f) override {
+    std::vector<Constraint> cons;
+    std::map<Value*, DILocation*> dbg;
+    collect_constraints(f, cons, dbg);
+    AndersenGraph graph(cons, dbg);
+    graph.Init();
+    graph.Solve();
+    graph.Dump();
+    return false;
+  }
+#+end_src
+
+First, collect four kinds of andersen constraints (=collect_constraints=).
+This step also builds the debug information for the filename, line number for the variable.
+Then, build andersen graph, including:
+ * init graph with base and simple constraints (=graph.Init()=)
+ * solve graph using worklist algorithm (=graph.Solve()=)
+Finally dump the result.
